@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horse Race Academy - 8 Horse Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --header-blue: #9ae8f1;
+            --header-green: #76ba1b;
+            --track-brown: #a67c52;
+            --divider-color: #ffffff;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: 'Balsamiq Sans', cursive;
+        }
+
+        .screen { display: none; width: 100%; height: 100%; position: relative; }
+        .active { display: flex; flex-direction: column; }
+
+        /* START PAGE */
+        #start-screen {
+            background: url('start page background.jpg') no-repeat center center;
+            background-size: cover;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 30vh;
+        }
+
+        .btn-balsamiq {
+            font-family: 'Balsamiq Sans', cursive;
+            border: none;
+            cursor: pointer;
+            text-transform: lowercase;
+        }
+
+        .play-btn {
+            background: var(--header-green);
+            color: white;
+            padding: 20px 80px;
+            font-size: 3.5rem;
+            border-radius: 60px;
+            box-shadow: 0 8px rgba(0,0,0,0.2);
+        }
+
+        .quit-btn {
+            background: #e74c3c;
+            color: white;
+            padding: 10px 40px;
+            font-size: 1.8rem;
+            border-radius: 50px;
+        }
+
+        .action-btn {
+            background: var(--header-green);
+            color: white;
+            padding: 10px 40px;
+            font-size: 1.8rem;
+            border-radius: 50px;
+        }
+
+        /* GAME INTERFACE */
+        .game-header {
+            width: 100%;
+            height: 10vh;
+            background: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            box-sizing: border-box;
+        }
+
+        .music-toggle {
+            background: var(--header-blue);
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.5;
+        }
+
+        .track-container {
+            width: 100%;
+            height: 90vh;
+            background: url('race track background.jpg') no-repeat center center;
+            background-size: 100% 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding-top: 5vh; 
+            padding-bottom: 2vh;
+            box-sizing: border-box;
+        }
+
+        #finish-line {
+            position: absolute;
+            right: 22%; 
+            top: 0;
+            width: 5px;
+            height: 100%;
+            background: transparent;
+            z-index: 5;
+        }
+
+        .lane {
+            flex: 1;
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .horse-img {
+            height: 90%; 
+            position: absolute;
+            left: 5%;
+            transition: left 0.1s linear;
+            z-index: 20;
+        }
+
+        .vocab-item {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .vocab-text {
+            color: white;
+            font-size: 2.8rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            text-transform: lowercase;
+            white-space: nowrap;
+        }
+
+        .vocab-img { 
+            height: 55px; 
+            width: 55px; 
+            border-radius: 8px; 
+            object-fit: cover;
+            border: 2px solid white;
+        }
+
+        /* RESULTS OVERLAY */
+        #results-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.9);
+            z-index: 200; display: none; flex-direction: column;
+            justify-content: center; align-items: center; color: white;
+        }
+        .podium-box { 
+            display: flex; 
+            gap: 30px; 
+            text-align: center; 
+            margin-bottom: 30px;
+            width: 95%;
+            justify-content: center;
+            align-items: center; /* Centered layout for the column stack */
+        }
+        .result-column { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 15px; 
+            width: 30%;
+        }
+
+        /* Ordering established in the displayWinners JS function */
+        .winner-vocab-img { 
+            width: 180px; 
+            height: 180px; 
+            border-radius: 15px; 
+            border: 4px solid white;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+            object-fit: cover;
+        }
+
+        .result-word { 
+            font-size: 3.08rem; /* Increased from base 2.2rem by 40% */
+            color: var(--header-green); 
+            text-transform: lowercase; 
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .medal-img { width: 110px; height: auto; }
+
+        .result-points { 
+            font-size: 1.8rem; 
+            font-weight: bold; 
+            color: var(--header-blue); 
+        }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" src="background music.mp3" loop></audio>
+
+    <div id="start-screen" class="screen active">
+        <button class="btn-balsamiq play-btn" onclick="startGame()">play race</button>
+    </div>
+
+    <div id="race-screen" class="screen">
+        <div class="game-header">
+            <button class="btn-balsamiq quit-btn" onclick="quitGame()">quit</button>
+            <button id="run-btn" class="btn-balsamiq action-btn" onclick="startRace()">start race</button>
+            <button id="next-btn" class="btn-balsamiq action-btn" style="display:none;" onclick="setupRound()">next round</button>
+            <button id="music-btn" class="btn-balsamiq music-toggle" onclick="toggleMusic()">&#x266B;</button>
+        </div>
+
+        <div class="track-container" id="track">
+            <div id="finish-line"></div>
+        </div>
+
+        <div id="results-overlay">
+            <div class="podium-box" id="podium-content"></div>
+            <button class="btn-balsamiq action-btn" onclick="closeResults()">continue</button>
+        </div>
+    </div>
+
+    <script>
+        const horseFiles = ['horse1.jpg', 'horse2.jpg', 'horse3.jpg', 'horse4.jpg', 'horse5.jpg', 'horse6.jpg', 'horse7.jpg', 'horse8.jpg'];
+        
+        const vocabList = [
+            { name: 'summer', img: 'summer.jpg' },
+            { name: 'fall', img: 'fall.jpg' },
+            { name: 'winter', img: 'winter.jpg' },
+            { name: 'spring', img: 'spring.jpg' },
+            { name: 'dry', img: 'dry.jpg' },
+            { name: 'wet', img: 'wet.jpg' },
+            { name: 'foggy', img: 'foggy.jpg' },
+            { name: 'snowy', img: 'snowy.jpg' }
+        ];
+
+        let currentRoundVocab = [];
+        let musicActive = false;
+        let isUserMusicPreferenceOff = false;
+        const audio = document.getElementById('bg-music');
+        let isRacing = false;
+
+        function toggleMusic() {
+            const btn = document.getElementById('music-btn');
+            if (musicActive) {
+                audio.pause();
+                musicActive = false;
+                isUserMusicPreferenceOff = true;
+                btn.style.opacity = "0.5";
+            } else {
+                audio.play();
+                musicActive = true;
+                isUserMusicPreferenceOff = false;
+                btn.style.opacity = "1";
+            }
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('race-screen').classList.add('active');
+            setupRound();
+        }
+
+        function quitGame() { location.reload(); }
+
+        function setupRound() {
+            const track = document.getElementById('track');
+            const finishLine = document.getElementById('finish-line');
+            track.innerHTML = '';
+            track.appendChild(finishLine);
+
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('run-btn').style.display = 'block';
+            document.getElementById('results-overlay').style.display = 'none';
+            
+            currentRoundVocab = [...vocabList].sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < 8; i++) {
+                const lane = document.createElement('div');
+                lane.className = 'lane';
+                lane.innerHTML = `
+                    <img src="${horseFiles[i]}" class="horse-img" id="racer-${i}">
+                    <div class="vocab-item">
+                        <span class="vocab-text">${currentRoundVocab[i].name}</span>
+                        <img src="${currentRoundVocab[i].img}" class="vocab-img">
+                    </div>
+                `;
+                track.appendChild(lane);
+            }
+        }
+
+        function startRace() {
+            if (isRacing) return;
+            isRacing = true;
+            document.getElementById('run-btn').style.display = 'none';
+
+            if (!isUserMusicPreferenceOff) {
+                audio.currentTime = 0;
+                audio.play().then(() => {
+                    musicActive = true;
+                    document.getElementById('music-btn').style.opacity = "1";
+                }).catch(e => console.log("Music blocked"));
+            }
+
+            let racers = [];
+            for (let i = 0; i < 8; i++) { racers.push({ id: i, x: 0, done: false }); }
+
+            const trackElem = document.querySelector('.track-container');
+            const laneWidth = trackElem.offsetWidth;
+            const finishLinePos = (laneWidth * 0.78) - 100; 
+            let winners = [];
+
+            const raceInterval = setInterval(() => {
+                racers.forEach(r => {
+                    if (!r.done) {
+                        r.x += Math.random() * 25; 
+                        document.getElementById(`racer-${r.id}`).style.left = `calc(5% + ${r.x}px)`;
+                        if (r.x >= finishLinePos) {
+                            r.done = true;
+                            winners.push(r.id);
+                        }
+                    }
+                });
+
+                if (winners.length >= 8) {
+                    clearInterval(raceInterval);
+                    isRacing = false;
+                    audio.pause();
+                    musicActive = false;
+                    document.getElementById('music-btn').style.opacity = "0.5";
+                    setTimeout(() => displayWinners(winners), 800);
+                }
+            }, 50);
+        }
+
+        function displayWinners(winners) {
+            const podium = document.getElementById('podium-content');
+            const medals = ['1st prize.jpg', '2nd prize.jpg', '3rd prize.jpg'];
+            const scores = ["3 pts", "2 pts", "1 pt"];
+            
+            podium.innerHTML = '';
+            for (let index = 0; index < 3; index++) {
+                const id = winners[index];
+                const winnerWord = currentRoundVocab[id].name;
+                const winnerImg = currentRoundVocab[id].img;
+
+                // Ordering: Pic -> Word -> Medal -> Points
+                podium.innerHTML += `
+                    <div class="result-column">
+                        <img src="${winnerImg}" class="winner-vocab-img">
+                        <div class="result-word">${winnerWord}</div>
+                        <img src="${medals[index]}" class="medal-img">
+                        <div class="result-points">+${scores[index]}</div>
+                    </div>
+                `;
+            }
+            document.getElementById('results-overlay').style.display = 'flex';
+        }
+
+        function closeResults() {
+            document.getElementById('results-overlay').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
